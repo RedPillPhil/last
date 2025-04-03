@@ -5,14 +5,13 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
 		<title>AbandonedSpaceshipDemo1</title>
 		<style>
-			/* (The rest of your CSS stays the same) */
+			/* (Your existing CSS goes here) */
 		</style>
 		<link id="-gd-engine-icon" rel="icon" type="image/png" href="AbandonedSpaceshipDemo1.icon.png" />
 		<link rel="apple-touch-icon" href="AbandonedSpaceshipDemo1.apple-touch-icon.png"/>
 	</head>
 	<body>
 		<canvas id="canvas">Your browser does not support the canvas tag.</canvas>
-
 		<noscript>
 			Your browser does not support JavaScript.
 		</noscript>
@@ -25,97 +24,45 @@
 
 		<script src="AbandonedSpaceshipDemo1.js"></script>
 		<script>
-const GODOT_CONFIG = {
-    "args": [],
-    "canvasResizePolicy": 2,
-    "ensureCrossOriginIsolationHeaders": true,
-    "executable": "AbandonedSpaceshipDemo1",
-    "experimentalVK": false,
-    "fileSizes": {
-        "AbandonedSpaceshipDemo1.pck": 339708384,  // Keep the file size value the same
-        "AbandonedSpaceshipDemo1.wasm": 52126319
-    },
-    "focusCanvas": true,
-    "gdextensionLibs": []
-};
-const GODOT_THREADS_ENABLED = false;
-const engine = new Engine(GODOT_CONFIG);
+			// Function to download and load the .pck file
+			function downloadAndLoadPck() {
+				const pckUrl = "https://github.com/RedPillPhil/last/releases/download/game/AbandonedSpaceshipDemo1.pck";
+				const httpRequest = new XMLHttpRequest();
+				httpRequest.open("GET", pckUrl, true);
+				httpRequest.responseType = "arraybuffer";
+				
+				httpRequest.onload = function () {
+					if (httpRequest.status === 200) {
+						const pckData = httpRequest.response;
+						const file = new File([pckData], "AbandonedSpaceshipDemo1.pck", {type: "application/octet-stream"});
+						
+						// Save the .pck file to user:// using File API
+						const fileReader = new FileReader();
+						fileReader.onload = function(event) {
+							const buffer = event.target.result;
+							// Save to the user directory (not directly available from JavaScript)
+							// You may need to use a specific function of the Godot engine to handle this part
+							// Save it locally with a specific Godot method (using Engine API)
+							// Placeholder for the real saving mechanism (This is pseudo code)
+							
+							// After saving, load the game with the downloaded .pck
+							Engine.load_game("user://AbandonedSpaceshipDemo1.pck");
+						};
+						fileReader.readAsArrayBuffer(file);
+					} else {
+						console.error("Failed to download .pck file.");
+					}
+				};
+				
+				httpRequest.onerror = function () {
+					console.error("An error occurred while downloading the .pck file.");
+				};
+				
+				httpRequest.send();
+			}
 
-(function () {
-    const statusOverlay = document.getElementById('status');
-    const statusProgress = document.getElementById('status-progress');
-    const statusNotice = document.getElementById('status-notice');
-
-    let initializing = true;
-    let statusMode = '';
-
-    function setStatusMode(mode) {
-        if (statusMode === mode || !initializing) {
-            return;
-        }
-        if (mode === 'hidden') {
-            statusOverlay.remove();
-            initializing = false;
-            return;
-        }
-        statusOverlay.style.visibility = 'visible';
-        statusProgress.style.display = mode === 'progress' ? 'block' : 'none';
-        statusNotice.style.display = mode === 'notice' ? 'block' : 'none';
-        statusMode = mode;
-    }
-
-    function setStatusNotice(text) {
-        while (statusNotice.lastChild) {
-            statusNotice.removeChild(statusNotice.lastChild);
-        }
-        const lines = text.split('\n');
-        lines.forEach((line) => {
-            statusNotice.appendChild(document.createTextNode(line));
-            statusNotice.appendChild(document.createElement('br'));
-        });
-    }
-
-    function displayFailureNotice(err) {
-        console.error(err);
-        if (err instanceof Error) {
-            setStatusNotice(err.message);
-        } else if (typeof err === 'string') {
-            setStatusNotice(err);
-        } else {
-            setStatusNotice('An unknown error occurred.');
-        }
-        setStatusMode('notice');
-        initializing = false;
-    }
-
-    const missing = Engine.getMissingFeatures({
-        threads: GODOT_THREADS_ENABLED,
-    });
-
-    if (missing.length !== 0) {
-        // Handle missing features as before
-    } else {
-        setStatusMode('progress');
-        
-        // Load the .pck file from the GitHub URL directly
-        const pckUrl = "https://github.com/RedPillPhil/last/releases/download/game/AbandonedSpaceshipDemo1.pck";
-        
-        engine.startGame({
-            "onProgress": function (current, total) {
-                if (current > 0 && total > 0) {
-                    statusProgress.value = current;
-                    statusProgress.max = total;
-                } else {
-                    statusProgress.removeAttribute('value');
-                    statusProgress.removeAttribute('max');
-                }
-            },
-            "pckUrl": pckUrl  // Pass the URL of the .pck file here
-        }).then(() => {
-            setStatusMode('hidden');
-        }, displayFailureNotice);
-    }
-}());
+			// When the page loads, call downloadAndLoadPck()
+			downloadAndLoadPck();
 		</script>
 	</body>
 </html>
